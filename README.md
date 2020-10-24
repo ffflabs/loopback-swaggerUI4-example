@@ -134,9 +134,14 @@ Use the same explorer to log in as
 {"username":"Jane", "password": "opensesame"}
 ```
 
+You will see the explorer just set a signed cookie "access-token".
+
 ![After login](client/after.login.gif)
 
-The cookie parser middleware will set an encrypted cookie that will be passed in your requests from then on
+
+Said cookie will be passed along with your requests, so now you can try the authenticated endpoints
+just like you did in the old explorer.
+
 
 ![After login](client/200.gif)
 
