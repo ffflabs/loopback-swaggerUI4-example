@@ -6,25 +6,33 @@
     "compression": {},
     "cors": {
       "params": {
-        "origin": true,
+        "origin": "http://${host}:${port}",
         "credentials": true,
         "maxAge": 86400
       }
     }
   },
-  "session": {
+
+  "session:before": {
+    "loopback#cookieParser": {
+      "params": "${COOKIE_SECRET}"
+    }
   },
   "auth": {
+    "loopback#token": {
+      "params": {
+        "currentUserLiteral": "me",
+        "model": "AccessToken"
+      }
+    }
   },
-  "parse": {
-  },
+  "parse": {},
   "routes": {
     "loopback#rest": {
       "paths": ["${restApiRoot}"]
     }
   },
-  "files": {
-  },
+  "files": {},
   "final": {
     "loopback#urlNotFound": {}
   },

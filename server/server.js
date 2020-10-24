@@ -3,14 +3,16 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-var bodyParser = require('body-parser');
-var boot = require('loopback-boot');
-var loopback = require('loopback');
-var path = require('path');
+const bodyParser = require('body-parser'),
+  boot = require('loopback-boot'),
+  loopback = require('loopback'),
+  path = require('path');
 
-var app = module.exports = loopback();
+let app = (module.exports = loopback());
 
-app.middleware('initial', bodyParser.urlencoded({ extended: true }));
+loopback.cookieParser = require('cookie-parser');
+
+app.middleware('initial', bodyParser.urlencoded({extended: true}));
 
 // Bootstrap the application, configure models, datasources and middleware.
 
@@ -23,9 +25,9 @@ app.set('json spaces', 2); // format json responses for easier viewing
 // the project root
 app.set('views', path.resolve(__dirname, 'views'));
 
-app.start = function() {
+app.start = function () {
   // start the web server
-  return app.listen(function() {
+  return app.listen(function () {
     app.emit('started');
     var baseUrl = app.get('url').replace(/\/$/, '');
     console.log('Web server listening at: %s', baseUrl);
@@ -40,4 +42,3 @@ app.start = function() {
 if (require.main === module) {
   app.start();
 }
-

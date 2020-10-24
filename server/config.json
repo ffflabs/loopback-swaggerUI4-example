@@ -1,5 +1,6 @@
 {
   "restApiRoot": "/api",
+  "COOKIE_SECRET": "__TOREPLACEWITHPROPERRANDOMSECRET__",
   "host": "0.0.0.0",
   "port": 3000,
   "legacyExplorer": false,
@@ -18,6 +19,38 @@
       "limit": "100kb"
     },
     "cors": false,
-    "handleErrors": false
+    "handleErrors": false,
+    "sharedMethods": {
+      "patchOrCreate": false,
+      "replaceOrCreate": false,
+      "upsertWithWhere": false,
+      "updateAll": false,
+      "deleteAll": false,
+      "destroyAll": false,
+      "count": false,
+      "exists": false,
+      "__exists": false,
+      "__replace": false,
+      "replaceById": false,
+      "deleteById": false,
+      "createChangeStream": false,
+      "__delete__accessTokens": false,
+      "__create__accessTokens": false,
+      "__count__accessTokens": false,
+      "replaceById__post*": false,
+      "prototype.__delete__*": false,
+      "prototype.__exists__*": false,
+      "prototype.__findById__accessTokens": false,
+      "prototype.__get__accessTokens": false,
+      "prototype.__create__accessTokens": false,
+      "prototype.__count__accessTokens": false,
+      "prototype.__destroyById__*": false,
+      "upsert": false,
+      "prototype.__updateById__*": false,
+      "updateAttributes": false,
+      "patchAttributes": false,
+      "prototype.__link__*": false,
+      "prototype.__unlink__*": false
+    }
   }
 }

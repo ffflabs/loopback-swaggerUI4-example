@@ -13,10 +13,10 @@ In this example, we create "Startkicker" (a basic Kickstarter-like
 application) to demonstrate authentication and authorization mechanisms in
 LoopBack. The application consists of four types of users:
 
- - `guest`
- - `owner`
- - `team member`
- - `administrator`
+- `guest`
+- `owner`
+- `team member`
+- `administrator`
 
 Each user type has permission to perform tasks based on their role and the
 application's ACL (access control list) entries.
@@ -54,18 +54,19 @@ $ cd loopback-example-access-control
 ### Add the models
 
 #### Model information
+
 - Name: `user`
   - Datasource: `db (memory)`
   - Base class: `User`
   - Expose via REST: `No`
-  - Custom plural form: *Leave blank*
+  - Custom plural form: _Leave blank_
   - Properties
-    - *None*
+    - _None_
 - Name: `team`
   - Datasource: `db (memory)`
   - Base class: `PersistedModel`
   - Expose via REST: `No`
-  - Custom plural form: *Leave blank*
+  - Custom plural form: _Leave blank_
   - Properties
     - `ownerId`
       - Number
@@ -77,7 +78,7 @@ $ cd loopback-example-access-control
   - Datasource: `db (memory)`
   - Base class: `PersistedModel`
   - Expose via REST: `Yes`
-  - Custom plural form: *Leave blank*
+  - Custom plural form: _Leave blank_
   - Properties
     - `name`
       - String
@@ -244,7 +245,7 @@ Start the server (`node .`) and open [`localhost:3000`](http://localhost:3000) i
   - Role = $everyone, $unauthenticated
   - Has access to the "List projects" function, but none of the others
 - John `Project owner`
-  - Role = $everyone, $authenticated, teamMember, $owner
+  - Role = $everyone, $authenticated, teamMember, \$owner
   - Can access all functions except "View all projects"
 - Jane `Project team member`
   - Role = $everyone, $authenticated, teamMember

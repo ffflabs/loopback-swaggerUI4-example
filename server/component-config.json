@@ -1,5 +1,11 @@
 {
   "loopback-component-explorer": {
     "mountPath": "/explorer"
+  },
+  "./components/swagger_ui": {
+    "mountPath": "/swagger_ui",
+    "consumes": ["application/json"],
+    "produces": ["application/json"],
+    "generateOperationScopedModels": true
   }
 }

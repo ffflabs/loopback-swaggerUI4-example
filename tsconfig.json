@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "keyofStringsOnly": true,
+    "allowJs": true,
+    "checkJs": true,
+    "noFallthroughCasesInSwitch": true,
+    "rootDir": ".",
+    "declarationDir": "server/types",
+    "noEmit": true
+  },
+  "exclude": ["node_modules", "server/**/*.d.ts"],
+  "include": ["server/**/*"]
+}

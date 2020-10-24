@@ -3,23 +3,26 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-module.exports = function(Project) {
+module.exports = function (Project) {
   // listProjects
-  Project.listProjects = function(cb) {
-    Project.find({
-      fields: {
-        balance: false
-      }
-    }, cb);
+  Project.listProjects = function (cb) {
+    Project.find(
+      {
+        fields: {
+          balance: false,
+        },
+      },
+      cb
+    );
   };
   Project.remoteMethod('listProjects', {
     returns: {arg: 'projects', type: 'array'},
-    http: {path:'/list-projects', verb: 'get'}
+    http: {path: '/list-projects', verb: 'get'},
   });
 
   // donate
-  Project.donate = function(id, amount, cb) {
-    Project.findById(id, function(err, project) {
+  Project.donate = function (id, amount, cb) {
+    Project.findById(id, function (err, project) {
       if (err) return cb(err);
 
       project.balance += amount;
@@ -31,19 +34,19 @@ module.exports = function(Project) {
   Project.remoteMethod('donate', {
     accepts: [
       {arg: 'id', type: 'number'},
-      {arg: 'amount', type: 'number'}
+      {arg: 'amount', type: 'number'},
     ],
     returns: {arg: 'success', type: 'boolean'},
-    http: {path:'/donate', verb: 'post'}
+    http: {path: '/donate', verb: 'post'},
   });
 
   // withdraw
-  Project.withdraw = function(id, amount, cb) {
-    Project.findById(id, function(err, project) {
+  Project.withdraw = function (id, amount, cb) {
+    Project.findById(id, function (err, project) {
       if (err) return cb(err);
 
-      project.balance = project.balance >= amount ?
-          project.balance - amount : 0;
+      project.balance =
+        project.balance >= amount ? project.balance - amount : 0;
       project.save();
 
       cb(null, true);
@@ -52,9 +55,9 @@ module.exports = function(Project) {
   Project.remoteMethod('withdraw', {
     accepts: [
       {arg: 'id', type: 'number'},
-      {arg: 'amount', type: 'number'}
+      {arg: 'amount', type: 'number'},
     ],
     returns: {arg: 'success', type: 'boolean'},
-    http: {path:'/withdraw', verb: 'post'}
+    http: {path: '/withdraw', verb: 'post'},
   });
 };

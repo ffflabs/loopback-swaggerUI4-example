@@ -3,12 +3,12 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-module.exports = function(app) {
+module.exports = function (app) {
   var Role = app.models.Role;
 
-  Role.registerResolver('teamMember', function(role, context, cb) {
+  Role.registerResolver('teamMember', function (role, context, cb) {
     function reject() {
-      process.nextTick(function() {
+      process.nextTick(function () {
         cb(null, false);
       });
     }
@@ -25,22 +25,24 @@ module.exports = function(app) {
     }
 
     // check if userId is in team table for the given project id
-    context.model.findById(context.modelId, function(err, project) {
-      if (err || !project)
-        return reject();
+    context.model.findById(context.modelId, function (err, project) {
+      if (err || !project) return reject();
 
       var Team = app.models.Team;
-      Team.count({
-        ownerId: project.ownerId,
-        memberId: userId
-      }, function(err, count) {
-        if (err) {
-          console.log(err);
-          return cb(null, false);
-        }
+      Team.count(
+        {
+          ownerId: project.ownerId,
+          memberId: userId,
+        },
+        function (err, count) {
+          if (err) {
+            console.log(err);
+            return cb(null, false);
+          }
 
-        cb(null, count > 0); // true = is a team member
-      });
+          cb(null, count > 0); // true = is a team member
+        }
+      );
     });
   });
 };

@@ -1,6 +1,5 @@
 ### Description
 
-
 #### Related issues
 
 <!--
@@ -22,4 +21,4 @@ https://github.com/blog/1375-task-lists-in-gfm-issues-pulls-comments)
 
 - [ ] New tests added or existing tests modified to cover all changes
 - [ ] Code conforms with the [style
-  guide](http://loopback.io/doc/en/contrib/style-guide.html)
+      guide](http://loopback.io/doc/en/contrib/style-guide.html)

@@ -1,0 +1,19 @@
+{
+  "restartable": "rs",
+  "delay": 3,
+  "ignore": [".git", "node_modules", "node_modules/**/node_modules", "test"],
+  "verbose": true,
+  "execMap": {
+    "js": "node"
+  },
+  "events": {
+    "restart": "echo -e '\"App restarted due to changes in :\n'$FILENAME'\" '",
+    "crash": "OMG the app crashed",
+    "exit": "Clean exit"
+  },
+  "watch": ["server/"],
+  "ext": "js json",
+  "env": {
+    "DEBUG": "loopback:openapi3:*"
+  }
+}
