@@ -1,259 +1,143 @@
-# loopback-example-access-control
+# loopback-swagger-ui4-example
 
-**⚠️ This LoopBack 3 example project is no longer maintained. Please refer to [LoopBack 4 Examples](https://loopback.io/doc/en/lb4/Examples.html) instead. ⚠️**
+Loopback 3's [explorer component](https://github.com/strongloop/loopback-component-explorer) uses Swagger-UI v2, which
+has several security advisories reported such as
+
+- [GitHub advisory CVE-2019-17495](https://github.com/advisories/GHSA-c427-hjc3-wrfw)
+- https://www.npmjs.com/advisories/985
+- https://www.npmjs.com/advisories/976
+
+There isn't any ongoing effort to adapt newer versions of Swagger-UI to Loopback 3, which is still widely used. This
+repo contains an example to replace the default Explorer Component with one usin Swagger-UI v4.
+
 
 ```
-$ git clone https://github.com/strongloop/loopback-example-access-control
-$ cd loopback-example-access-control
+$ git clone https://github.com/ffflabs/loopback-swagerUI4-example
+$ cd loopback-swagerUI4-example
 $ npm install
-$ node .
+$ npm start
 ```
 
-In this example, we create "Startkicker" (a basic Kickstarter-like
-application) to demonstrate authentication and authorization mechanisms in
-LoopBack. The application consists of four types of users:
+This example uses [Looback Example Access Control](https://github.com/strongloop/loopback-example-access-control) as
+a boilerplate app. Said example creates a "Startkicker" app  to demonstrate authentication and
+authorization mechanisms in LoopBack. For what matters to this example, it's enough to say we create a
+few users on application boot. One of these is
 
-- `guest`
-- `owner`
-- `team member`
-- `administrator`
+```json
+{"username":"Jane", "password": "opensesame"}
+```
 
-Each user type has permission to perform tasks based on their role and the
-application's ACL (access control list) entries.
+These credentials will be used to authenticate in the new explorer component.
 
 ## Prerequisites
 
-### Tutorials
+### Install and configure Cookie Parser middleware
 
-- [Getting started with LoopBack](http://loopback.io/doc/en/lb3/Getting-started-with-LoopBack.html)
-- [Other tutorials and examples](http://loopback.io/doc/en/lb3/Tutorials-and-examples.html)
-
-### Knowledge
-
-- [EJS](https://github.com/visionmedia/ejs)
-- [body-parser](https://github.com/expressjs/body-parser)
-- [JSON](http://json.org/)
-- [LoopBack models](http://docs.strongloop.com/display/LB/Defining+models)
-- [LoopBack adding application logic](http://docs.strongloop.com/display/LB/Adding+application+logic)
-
-## Procedure
-
-### Create the application
-
-#### Application information
-
-- Name: `loopback-example-access-control`
-- Directory to contain the project: `loopback-example-access-control`
+1. Install express's cookie parser middleware
 
 ```
-$ lb app loopback-example-access-control
-... # follow the prompts
-$ cd loopback-example-access-control
+npm install cookie-parser
 ```
 
-### Add the models
-
-#### Model information
-
-- Name: `user`
-  - Datasource: `db (memory)`
-  - Base class: `User`
-  - Expose via REST: `No`
-  - Custom plural form: _Leave blank_
-  - Properties
-    - _None_
-- Name: `team`
-  - Datasource: `db (memory)`
-  - Base class: `PersistedModel`
-  - Expose via REST: `No`
-  - Custom plural form: _Leave blank_
-  - Properties
-    - `ownerId`
-      - Number
-      - Not required
-    - `memberId`
-      - Number
-      - Required
-- Name: `project`
-  - Datasource: `db (memory)`
-  - Base class: `PersistedModel`
-  - Expose via REST: `Yes`
-  - Custom plural form: _Leave blank_
-  - Properties
-    - `name`
-      - String
-      - Not required
-    - `balance`
-      - Number
-      - Not required
-
-> No properties are required for the `user` model because we inherit them from
-> the built-in `User` model by specifying it as the base class.
+2. Attach cookie parser as a property of your app instance in [server/server.js](server/server.js)
 
 ```
-$ lb model user
-... # follow the prompts, repeat for `team` and `project`
+loopback.cookieParser = require('cookie-parser');
 ```
 
-### Define the remote methods
-
-Define three remote methods in [`project.js`](https://github.com/strongloop/loopback-example-access-control/blob/master/common/models/project.js):
-
-- [`listProjects`](https://github.com/strongloop/loopback-example-access-control/blob/master/common/models/project.js#L2-L13)
-- [`donate`](https://github.com/strongloop/loopback-example-access-control/blob/master/common/models/project.js#L15-L31)
-- [`withdraw`](https://github.com/strongloop/loopback-example-access-control/blob/master/common/models/project.js#L33-54)
-
-### Create the model relations
-
-#### Model relation information
-
-- `user`
-  - has many
-    - `project`
-      - Property name for the relation: `projects`
-      - Custom foreign key: `ownerId`
-      - Require a through model: No
-    - `team`
-      - Property name for the relation: `teams`
-      - Custom foreign key: `ownerId`
-      - Require a through model: No
-- `team`
-  - has many
-    - `user`
-      - Property name for the relation: `members`
-      - Custom foreign key: `memberId`
-      - Require a through model: No
-- `project`
-  - belongs to
-    - `user`
-      - Property name for the relation: `user`
-      - Custom foreign key: `ownerId`
-
-### Add model instances
-
-Create a boot script named [`sample-models.js`](https://github.com/strongloop/loopback-example-access-control/blob/master/server/boot/sample-models.js).
-
-This script does the following:
-
-- [Creates 3 users](/server/boot/sample-models.js#L12-L17) (`John`, `Jane`, and
-  `Bob`)
-- [Creates project 1, sets `John` as the owner, and adds `John` and `Jane` as team
-  members](/server/boot/sample-models.js#L21-L39)
-- [Creates project 2, sets `Jane` as the owner and solo team
-  member](/server/boot/sample-models.js#L41-L59)
-- [Creates a role named `admin` and adds a role mapping to make `Bob` an
-  `admin`](/server/boot/sample-models.js#L69-L77)
-
-### Configure server-side views
-
-> LoopBack comes preconfigured with EJS out-of-box. This means we can use
-> server-side templating by simply setting the proper view engine and a
-> directory to store the views.
-
-Create a [`views` directory](https://github.com/strongloop/loopback-example-access-control/blob/master/server/views) to store server-side templates.
+3. Set a cookie secret on your ['server/config.json'](server/config.json) file:
 
 ```
-$ mkdir server/views
+{
+  "restApiRoot": "/api",
+  "COOKIE_SECRET": "__REPLACE_WITH_PROPER_RANDOM_SECRET__",
+  "host": "0.0.0.0",
+  ...
+}
 ```
 
-Create [`index.ejs` in the views directory](https://github.com/strongloop/loopback-example-access-control/blob/master/server/views/index.ejs).
-
-[Configure `server.js`](https://github.com/strongloop/loopback-example-access-control/blob/master/server/server.js#L11-L20) to use server-side
-templating. Remember to import the [`path`](https://github.com/strongloop/loopback-example-access-control/blob/master/server/server.js#L4) package.
-
-### Add routes
-
-Create [`routes.js`](https://github.com/strongloop/loopback-example-access-control/blob/master/server/boot/routes.js). This script does the following:
-
-- Sets the [`GET /` route to render `index.ejs`](https://github.com/strongloop/loopback-example-access-control/blob/master/server/views/index.ejs)
-- Sets the [`GET /projects` route to render `projects.ejs`](https://github.com/strongloop/loopback-example-access-control/blob/master/server/views/projects.ejs)
-- Sets the [`POST /projects` route to to render `projects.ejs` when credentials are valid](server/views/projects.ejs) and [renders `index.ejs`](https://github.com/strongloop/loopback-example-access-control/blob/master/server/views/index.ejs) when credentials are invalid
-- Sets the [`GET /logout` route to log the user out](https://github.com/strongloop/loopback-example-access-control/blob/master/server/views/routes.js)
-
-> When you log in sucessfully, `projects.html` is rendered with the authenticated user's access token embedded into each link.
-
-### Create the views
-
-Create the [`views` directory](https://github.com/strongloop/loopback-example-access-control/tree/master/server/views) to store views.
-
-In this directory, create [`index.ejs`](https://github.com/strongloop/loopback-example-access-control/blob/master/server/views/index.ejs) and [`projects.ejs`](https://github.com/strongloop/loopback-example-access-control/blob/master/server/views/projects.ejs).
-
-### Create a role resolver
-
-Create [`role-resolver.js`](https://github.com/strongloop/loopback-example-access-control/blob/master/server/boot/role-resolver.js).
-
-> This file checks if the context relates to the project model and if the
-> request maps to a user. If these two requirements are not met, the request is
-> denied. Otherwise, we check to see if the user is a team member and process
-> the request accordingly.
-
-### Create ACL entries
-
-> ACLs are used to restrict access to application REST endpoints.
-
-#### ACL information
-
-- Deny access to all project REST endpoints
-  - Select the model to apply the ACL entry to: `(all existing models)`
-  - Select the ACL scope: `All methods and properties`
-  - Select the access type: `All (match all types)`
-  - Select the role: `All users`
-  - Select the permission to apply: `Explicitly deny access`
-- Allow unrestricted access to `GET /api/projects/listProjects`
-  - Select the model to apply the ACL entry to: `project`
-  - Select the ACL scope: `A single method`
-  - Enter the method name: `listProjects`
-  - Select the role: `All users`
-  - Select the permission to apply: `Explicitly grant access`
-- Only allow admin unrestricted access to `GET /api/projects`
-  - Select the model to apply the ACL entry to: `project`
-  - Select the ACL scope: `A single method`
-  - Enter the method name: `find`
-  - Select the role: `other`
-  - Enter the role name: `admin`
-  - Select the permission to apply: `Explicitly grant access`
-- Only allow team members access to `GET /api/projects/:id`
-  - Select the model to apply the ACL entry to: `project`
-  - Select the ACL scope: `A single method`
-  - Enter the method name: `findById`
-  - Select the role: `other`
-  - Enter the role name: `teamMember`
-  - Select the permission to apply: `Explicitly grant access`
-- Allow authenticated users to access `POST /api/projects/donate`
-  - Select the model to apply the ACL entry to: `project`
-  - Select the ACL scope: `A single method`
-  - Enter the method name: `donate`
-  - Select the role: `Any authenticated user`
-  - Select the permission to apply: `Explicitly grant access`
-- Allow owners access to `POST /api/projects/withdraw`
-  - Select the model to apply the ACL entry to: `project`
-  - Select the ACL scope: `A single method`
-  - Enter the method name: `withdraw`
-  - Select the role: `The user owning the object`
-  - Select the permission to apply: `Explicitly grant access`
+4. Add the cookie parser middleware to your ['server/middleware.json'](server/middleware.json) file,
+setting it to use it on the `session:before` stage and with the `COOKIE_SECRET` you defined above
 
 ```
-$ lb acl
-# follow the prompts, repeat for each ACL listed above
+"session:before": {
+    "loopback#cookieParser": {
+      "params": "${COOKIE_SECRET}"
+    }
+  },
 ```
 
-### Try the application
+### Allow credentials header
 
-Start the server (`node .`) and open [`localhost:3000`](http://localhost:3000) in your browser to view the app. You will see logins and explanations related to each user type we created:
+5. In ['server/middleware.json'](server/middleware.json) file also, ensure the `cors` middleware is sending the `access-control-allow-credentials` header
 
-- Guest `Guest`
-  - Role = $everyone, $unauthenticated
-  - Has access to the "List projects" function, but none of the others
-- John `Project owner`
-  - Role = $everyone, $authenticated, teamMember, \$owner
-  - Can access all functions except "View all projects"
-- Jane `Project team member`
-  - Role = $everyone, $authenticated, teamMember
-  - Can access all functions except "View all projects" and "Withdraw"
-- Bob `Administrator`
-  - Role = $everyone, $authenticated, admin
-  - Can access all functions except "Withdraw"
+```
+  "initial": {
+    "compression": {},
+    "cors": {
+      "params": {
+        "origin": "http://${host}:${port}",
+        "credentials": true, // <----- this one
+        "maxAge": 86400
+      }
+    }
+  },
+```
 
----
+### Create the component and enable it
 
-[More LoopBack examples](https://loopback.io/doc/en/lb3/Tutorials-and-examples.html)
+6. Create a ['server/components/swagger-ui.js'](server/components/swagger-ui.js) script (name it whatever you want). The linked example may
+be boiled down to:
+
+```js
+module.exports = async function (loopbackApp, options = {mountPath: ''}) {
+  const swaggerUi = require('swagger-ui-express'),
+    createSwaggerObject = require('loopback-swagger').generateSwaggerSpec,
+    router = loopbackApp.loopback.Router();
+
+  loopbackApp.use(
+    options.mountPath,
+    swaggerUi.serve,
+    swaggerUi.setup(createSwaggerObject(loopbackApp, options))
+  );
+  loopbackApp.use(router);
+
+  loopbackApp.set('swager_ui', options);
+};
+```
+
+7. Then enable the component in ['server/component-config.json'](server/component-config.json)
+
+```json
+{
+  "./components/swagger_ui": {
+    "mountPath": "/swagger_ui"
+  }
+}
+```
+
+You're done.
+
+## Now what?
+
+Start your app using `npm start`. Browse to the url you configured for it. Usually http://localhost:3000
+
+The new explorer is at http://localhost:3000/swagger_ui. Note that there is no token input as the one
+in Loopback Component Explorer, and since you are not logged in, trying to get a user's properties
+will result in an error:
+
+![Not Authorized](client/401.gif)
+
+Use the same explorer to log in as
+
+ ```json
+{"username":"Jane", "password": "opensesame"}
+```
+
+![After login](client/after.login.gif)
+
+The cookie parser middleware will set an encrypted cookie that will be passed in your requests from then on
+
+![After login](client/200.gif)
+
+
